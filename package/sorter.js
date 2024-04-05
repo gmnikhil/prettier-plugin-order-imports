@@ -8,12 +8,14 @@ const sortImportsByComponent = (ast, options) => {
   })
 
   imports.sort((a, b) => {
+    const a_specifier = a.specifiers.length ? a.specifiers[0].local : { name: "" }
+    const b_specifier = b.specifiers.length ? b.specifiers[0].local : { name: "" }
+
+    if (!a_specifier.name && b_specifier.name) return 1
+    if (a_specifier.name && !b_specifier.name) return -1
+
     if (a.specifiers.length < 2 && b.specifiers.length >= 2) return -1
-
     if (a.specifiers.length >= 2 && b.specifiers.length < 2) return 1
-
-    const a_specifier = a.specifiers[0].local
-    const b_specifier = b.specifiers[0].local
 
     return a_specifier.name.localeCompare(b_specifier.name)
   })
