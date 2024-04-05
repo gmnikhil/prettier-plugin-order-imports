@@ -1,23 +1,15 @@
-const parser = require("@typescript-eslint/typescript-estree");
-const { sortImportsByComponent } = require("./sorter");
+import { sortImportsByComponent } from "./sorter.js"
+import typescriptParsers from "prettier/plugins/typescript.js"
 
-module.exports = {
-  parsers: {
-    typescript: {
-      parse: (text, parsers, options) => {
-        const ast = parser.parse(text, {
-          ...options,
-          loc: true,
-          range: true,
-          jsx: true,
-        });
-        const sortedAst = sortImportsByComponent(ast, options);
-        return sortedAst;
-      },
-      astFormat: "estree",
+const { typescript: defaultTypescriptParser } = typescriptParsers.parsers
 
-      locStart: (node) => node.loc.start,
-      locEnd: (node) => node.loc.end,
+export const parsers = {
+  typescript: {
+    ...defaultTypescriptParser,
+    parse: (text, parsers, options) => {
+      const ast = defaultTypescriptParser.parse(text, options)
+      const sortedAst = sortImportsByComponent(ast, options)
+      return sortedAst
     },
   },
-};
+}
