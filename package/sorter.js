@@ -1,4 +1,9 @@
+import { hasFloatingCommentsInImportRegion } from "./import-comment-guard.js"
+import { stripImportDeclarationPosition } from "./strip-import-positions.js"
+
 const sortImportsByComponent = (ast, options) => {
+  const skipStrip = hasFloatingCommentsInImportRegion(ast)
+
   const imports = ast.body.filter((node) => node.type === "ImportDeclaration")
 
   const nonImports = ast.body.filter((node) => node.type !== "ImportDeclaration")
@@ -33,20 +38,15 @@ const sortImportsByComponent = (ast, options) => {
     return a_specifier.name.localeCompare(b_specifier.name)
   })
 
-  const transformedImports = imports.map((node) => {
-    return {
-      ...node,
-      specifiers: node.specifiers.map((specifier) => {
-        if (specifier?.imported && specifier.local.name === specifier.imported.name)
-          delete specifier.local
-        return specifier
-      }),
+  if (!skipStrip) {
+    for (const node of imports) {
+      stripImportDeclarationPosition(node)
     }
-  })
+  }
 
   return {
     ...ast,
-    body: [...transformedImports, ...nonImports],
+    body: [...imports, ...nonImports],
   }
 }
 

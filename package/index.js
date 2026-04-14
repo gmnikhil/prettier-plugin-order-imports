@@ -1,4 +1,5 @@
 import { sortImportsByComponent } from "./sorter.js"
+import { printers } from "./printers.js"
 import typescriptParsers from "prettier/plugins/typescript.js"
 
 const { typescript: defaultTypescriptParser } = typescriptParsers.parsers
@@ -13,3 +14,5 @@ export const parsers = {
     },
   },
 }
+
+export { printers }
