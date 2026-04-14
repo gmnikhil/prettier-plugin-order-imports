@@ -1,4 +1,5 @@
-import { sortImportsByComponent } from "./sorter.js"
+import { sortImportSpecifiersInProgram } from "./import-sort-logic.js"
+import { preprocessImportsInSource } from "./preprocess-imports.js"
 import { printers } from "./printers.js"
 import typescriptParsers from "prettier/plugins/typescript.js"
 
@@ -7,10 +8,12 @@ const { typescript: defaultTypescriptParser } = typescriptParsers.parsers
 export const parsers = {
   typescript: {
     ...defaultTypescriptParser,
-    parse: (text, parsers, options) => {
+    preprocess: (text, options) =>
+      preprocessImportsInSource(text, options, defaultTypescriptParser.parse.bind(defaultTypescriptParser)),
+    parse: (text, options) => {
       const ast = defaultTypescriptParser.parse(text, options)
-      const sortedAst = sortImportsByComponent(ast, options)
-      return sortedAst
+      sortImportSpecifiersInProgram(ast)
+      return ast
     },
   },
 }
