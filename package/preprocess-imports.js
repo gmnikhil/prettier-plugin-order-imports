@@ -49,10 +49,6 @@ function preprocessImportsInSource(text, options, baseParse) {
   const leading = body.slice(0, leadingImportCount)
   for (const node of leading) sortImportSpecifiers(node)
 
-  const sorted = [...leading].sort(compareImportDeclarations)
-  const alreadyOrdered = sorted.every((node, i) => node === leading[i])
-  if (alreadyOrdered) return text
-
   const blockStart = leading[0].range[0]
   const blockEnd = leading[leadingImportCount - 1].range[1]
 
@@ -60,7 +56,13 @@ function preprocessImportsInSource(text, options, baseParse) {
     return text
   }
 
+  const sorted = [...leading].sort(compareImportDeclarations)
   const newBlock = sorted.map((node) => text.slice(node.range[0], node.range[1])).join("\n")
+  const oldBlock = text.slice(blockStart, blockEnd)
+
+  if (newBlock === oldBlock) {
+    return text
+  }
 
   return text.slice(0, blockStart) + newBlock + text.slice(blockEnd)
 }
